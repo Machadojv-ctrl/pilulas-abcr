@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#007bff">
+  <title>Pílulas Executivas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .search-box {
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      margin: 0 0 10px 0;
+    }
+
+    .info {
+      font-size: 14px;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    .btn {
+      margin-top: 10px;
+      padding: 6px 12px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn.salvar {
+      background: #28a745;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+<div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px;">
+  <img src="abcr.png" style="height: 48px; object-fit: contain;">
+  <h1 style="margin: 0;">Pílulas</h1>
+</div>
+
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="🔍 Buscar em pergunta, resposta, pílula...">
+  <button class="btn" onclick="novo()">Novo</button>
+  <button class="btn" onclick="carregar(true)">Atualizar</button>
+</div>
+
+<div class="container" id="lista"></div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxGq9gygGM04nMfuxXaFc26IB7cVmLp_zKYbr5I80BrgsBw92S5fHBvxh93ha65hj-XdQ/exec";
+
+  let dados = [];
+  let filtroAtual = "";
+
+  function normalizarTexto(valor) {
+    return String(valor || "").toLowerCase();
+  }
+
+  function hojeBR() {
+    return new Date().toLocaleDateString("pt-BR");
+  }
+
+  async function apiGet() {
+    const resp = await fetch(API_URL);
+    const text = await resp.text();
+
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error("Resposta inválida do servidor: " + text);
+    }
+
+    if (!json.ok) throw new Error(json.error || "Erro ao carregar dados");
+    return json.data || [];
+  }
+
+  async function apiUpsert(item) {
+    const resp = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "upsert", item })
+    });
+
+    const text = await resp.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error("Resposta inválida do servidor: " + text);
+    }
+
+    if (!json.ok) throw new Error(json.error || "Erro ao salvar dados");
+    return json.data;
+  }
+
+  async function apiDelete(id) {
+    const resp = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "delete", id })
+    });
+
+    const text = await resp.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error("Resposta inválida do servidor: " + text);
+    }
+
+    if (!json.ok) throw new Error(json.error || "Erro ao excluir dados");
+    return json.data;
+  }
+
+  async function carregar(forcarMensagem = false) {
+    try {
+      const rows = await apiGet();
+      dados = (rows || []).map(r => ({ ...r, editando: false, salvando: false }));
+      render();
+      if (forcarMensagem) {
+        console.log("Dados atualizados com sucesso.");
+      }
+    } catch (err) {
+      alert("Erro ao carregar dados");
+      console.error(err);
+    }
+  }
+
+  function render() {
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
+
+    dados
+      .filter(item => {
+        const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
+          .map(normalizarTexto)
+          .join(" ");
+        return textoBusca.includes(filtroAtual);
+      })
+      .forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        if (!item.editando) {
+          const url = item.fonte || "";
+          const href = url.startsWith("http") ? url : "https://" + url;
+
+          card.innerHTML = `
+            <h3>${item.pergunta || ""}</h3>
+            <b>Resposta:</b> ${item.resposta || ""}<br>
+            <b>Pílula:</b> ${item.pilula || ""}<br>
+            <b>Comparação:</b> ${item.comparacao || ""}
+            <div class="info">
+              Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
+              Data Fonte: ${item.dataFonte || ""}
+            </div>
+            <div class="info">Atualizado em: ${item.dataAtualizacao || ""}</div>
+            <button class="btn" onclick="editar(${index})">Editar</button>
+          `;
+        } else {
+          const textoBotao = item.salvando ? "Salvando..." : "Salvar";
+          const disabled = item.salvando ? "disabled" : "";
+
+          card.innerHTML = `
+            <b>Pergunta:</b>
+            <input type="text" value="${item.pergunta || ""}" id="p${index}">
+            <b>Resposta:</b>
+            <textarea id="r${index}">${item.resposta || ""}</textarea>
+            <b>Pílula:</b>
+            <textarea id="pi${index}">${item.pilula || ""}</textarea>
+            <b>Comparação:</b>
+            <textarea id="c${index}">${item.comparacao || ""}</textarea>
+            <b>Fonte (URL):</b>
+            <input type="text" value="${item.fonte || ""}" id="f${index}">
+            <button class="btn salvar" onclick="salvar(${index})" ${disabled}>${textoBotao}</button>
+            <button class="btn" onclick="excluir(${index})" ${disabled} style="background:#dc3545; margin-left:8px;">Excluir</button>
+          `;
+        }
+
+        fragment.appendChild(card);
+      });
+
+    lista.appendChild(fragment);
+  }
+
+  function editar(index) {
+    dados[index].editando = true;
+    render();
+  }
+
+  async function salvar(index) {
+    const item = dados[index];
+    if (!item || item.salvando) return;
+
+    try {
+      const pergunta = document.getElementById(`p${index}`)?.value || "";
+      const resposta = document.getElementById(`r${index}`)?.value || "";
+      const pilula = document.getElementById(`pi${index}`)?.value || "";
+      const comparacao = document.getElementById(`c${index}`)?.value || "";
+      const fonte = document.getElementById(`f${index}`)?.value || "";
+
+      item.pergunta = pergunta;
+      item.resposta = resposta;
+      item.pilula = pilula;
+      item.comparacao = comparacao;
+      item.fonte = fonte;
+
+      item.salvando = true;
+      render();
+
+      if (!item.dataFonte) item.dataFonte = hojeBR();
+      item.dataAtualizacao = hojeBR();
+
+      const result = await apiUpsert(item);
+      if (result && result.id) item.id = result.id;
+
+      item.salvando = false;
+      item.editando = false;
+      render();
+    } catch (err) {
+      item.salvando = false;
+      render();
+      alert("Erro ao salvar");
+      console.error(err);
+    }
+  }
+
+  async function excluir(index) {
+    const item = dados[index];
+    if (!item || item.salvando) return;
+
+    const confirmado = confirm(`Deseja excluir a entrada "${item.pergunta || "sem título"}"?`);
+    if (!confirmado) return;
+
+    try {
+      item.salvando = true;
+      render();
+
+      if (item.id) {
+        await apiDelete(item.id);
+      }
+
+      dados.splice(index, 1);
+      render();
+    } catch (err) {
+      item.salvando = false;
+      render();
+      alert("Erro ao excluir");
+      console.error(err);
+    }
+  }
+
+  function novo() {
+    dados.unshift({
+      id: "",
+      pergunta: "",
+      resposta: "",
+      pilula: "",
+      comparacao: "",
+      fonte: "https://www.google.com",
+      dataFonte: hojeBR(),
+      dataAtualizacao: hojeBR(),
+      editando: true,
+      salvando: false
+    });
+    render();
+  }
+
+  let debounceBusca;
+  document.getElementById("searchInput").addEventListener("input", (event) => {
+    clearTimeout(debounceBusca);
+    debounceBusca = setTimeout(() => {
+      filtroAtual = normalizarTexto(event.target.value);
+      render();
+    }, 120);
+  });
+
+  carregar();
+</script>
+
+</body>
+</html>
