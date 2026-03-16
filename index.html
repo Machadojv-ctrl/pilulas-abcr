@@ -234,11 +234,13 @@ box-sizing:border-box;
             <b>Pílula:</b> ${item.pilula || ""}<br>
             <b>Comparação:</b> ${item.comparacao || ""}
             <div class="info">
-              Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
-              Data Fonte: ${item.dataFonte || ""}
-            </div>
-            <div class="info">Atualizado em: ${item.dataAtualizacao || ""}</div>
-            <button class="btn" onclick="editar(${index})">Editar</button>
+  Fonte: <a href="${href}" target="_blank">${item.fonte}</a> |
+  Data Fonte: ${formatarData(item.dataFonte)}
+</div>
+
+<div class="info">
+  Atualizado em: ${formatarData(item.dataAtualizacao)}
+</div>
           `;
         } else {
           const textoBotao = item.salvando ? "Salvando..." : "Salvar";
