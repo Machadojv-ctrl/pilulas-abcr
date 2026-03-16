@@ -128,6 +128,17 @@ box-sizing:border-box;
   function hojeBR() {
     return new Date().toLocaleDateString("pt-BR");
   }
+  function formatarData(valor) {
+
+  if (!valor) return "";
+
+  const data = new Date(valor);
+
+  if (isNaN(data)) return valor;
+
+  return data.toLocaleDateString("pt-BR");
+
+}
 
   async function apiGet() {
     const resp = await fetch(API_URL);
