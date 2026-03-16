@@ -363,5 +363,18 @@ box-sizing:border-box;
   carregar();
 </script>
 
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async () => {
+      try {
+        await navigator.serviceWorker.register("./sw.js");
+        console.log("Service Worker registrado com sucesso");
+      } catch (error) {
+        console.error("Erro ao registrar Service Worker:", error);
+      }
+    });
+  }
+</script>
+  
 </body>
 </html>
