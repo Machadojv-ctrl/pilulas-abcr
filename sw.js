@@ -1,4 +1,4 @@
-const CACHE_NAME = "pilulas-abcr-v1";
+const CACHE_NAME = "pilulas-abcr-v2";
 
 const APP_SHELL = [
   "./",
