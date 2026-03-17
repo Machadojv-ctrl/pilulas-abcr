@@ -3,17 +3,13 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <meta name="theme-color" content="#007bff">
 
 <link rel="manifest" href="manifest.webmanifest">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
-
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
 <meta name="apple-mobile-web-app-title" content="Pílulas">
 
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -129,17 +125,16 @@ box-sizing:border-box;
   function hojeBR() {
     return new Date().toLocaleDateString("pt-BR");
   }
+
   function formatarData(valor) {
+    if (!valor) return "";
 
-  if (!valor) return "";
+    const data = new Date(valor);
 
-  const data = new Date(valor);
+    if (isNaN(data)) return valor;
 
-  if (isNaN(data)) return valor;
-
-  return data.toLocaleDateString("pt-BR");
-
-}
+    return data.toLocaleDateString("pt-BR");
+  }
 
   async function apiGet() {
     const resp = await fetch(API_URL);
@@ -199,6 +194,7 @@ box-sizing:border-box;
       const rows = await apiGet();
       dados = (rows || []).map(r => ({ ...r, editando: false, salvando: false }));
       render();
+
       if (forcarMensagem) {
         console.log("Dados atualizados com sucesso.");
       }
@@ -219,6 +215,7 @@ box-sizing:border-box;
         const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
           .map(normalizarTexto)
           .join(" ");
+
         return textoBusca.includes(filtroAtual);
       })
       .forEach((item, index) => {
@@ -235,13 +232,13 @@ box-sizing:border-box;
             <b>Pílula:</b> ${item.pilula || ""}<br>
             <b>Comparação:</b> ${item.comparacao || ""}
             <div class="info">
-  Fonte: <a href="${href}" target="_blank">${item.fonte}</a> |
-  Data Fonte: ${formatarData(item.dataFonte)}
-</div>
-
-<div class="info">
-  Atualizado em: ${formatarData(item.dataAtualizacao)}
-</div>
+              Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
+              Data Fonte: ${formatarData(item.dataFonte)}
+            </div>
+            <div class="info">
+              Atualizado em: ${formatarData(item.dataAtualizacao)}
+            </div>
+            <button class="btn" onclick="editar(${index})">Editar</button>
           `;
         } else {
           const textoBotao = item.salvando ? "Salvando..." : "Salvar";
@@ -364,7 +361,7 @@ box-sizing:border-box;
   carregar();
 </script>
 
-  <script>
+<script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try {
@@ -376,29 +373,30 @@ box-sizing:border-box;
     });
   }
 </script>
-  <script>
-let deferredPrompt;
 
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById("installBtn").hidden = false;
-});
+<script>
+  let deferredPrompt;
 
-document.getElementById("installBtn").addEventListener("click", async () => {
-  if (!deferredPrompt) return;
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById("installBtn").hidden = false;
+  });
 
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
+  document.getElementById("installBtn").addEventListener("click", async () => {
+    if (!deferredPrompt) return;
 
-  deferredPrompt = null;
-  document.getElementById("installBtn").hidden = true;
-});
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
 
-window.addEventListener("appinstalled", () => {
-  document.getElementById("installBtn").hidden = true;
-});
+    deferredPrompt = null;
+    document.getElementById("installBtn").hidden = true;
+  });
+
+  window.addEventListener("appinstalled", () => {
+    document.getElementById("installBtn").hidden = true;
+  });
 </script>
-  
+
 </body>
 </html>
