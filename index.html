@@ -93,6 +93,35 @@ margin-top:5px;
 box-sizing:border-box;
 }
 
+.paginacao {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.paginacao button {
+  padding: 6px 12px;
+  border: 1px solid #007bff;
+  background: #fff;
+  color: #007bff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.paginacao button.ativa {
+  background: #007bff;
+  color: #fff;
+}
+
+.paginacao button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 </style>
 
 </head>
@@ -117,6 +146,8 @@ box-sizing:border-box;
 
   let dados = [];
   let filtroAtual = "";
+  let paginaAtual = 0;
+const POR_PAGINA = 10;
 
   function normalizarTexto(valor) {
   return String(valor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -204,69 +235,103 @@ box-sizing:border-box;
     }
   }
 
-  function render() {
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
+function render() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
 
-    const fragment = document.createDocumentFragment();
+  const fragment = document.createDocumentFragment();
 
-    dados
-      .filter(item => {
-  const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
-    .map(normalizarTexto)
-    .join(" ");
+  const filtrados = dados.filter(item => {
+    const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
+      .map(normalizarTexto)
+      .join(" ");
 
-  const tokens = filtroAtual.trim().split(/\s+/).filter(Boolean);
-  return tokens.every(token => textoBusca.includes(token));
-})
-      .forEach((item, index) => {
-        const card = document.createElement("div");
-        card.className = "card";
+    const tokens = filtroAtual.trim().split(/\s+/).filter(Boolean);
+    return tokens.every(token => textoBusca.includes(token));
+  });
 
-        if (!item.editando) {
-          const url = item.fonte || "";
-          const href = url.startsWith("http") ? url : "https://" + url;
+  const totalPaginas = Math.ceil(filtrados.length / POR_PAGINA);
+  if (paginaAtual >= totalPaginas) paginaAtual = Math.max(0, totalPaginas - 1);
 
-          card.innerHTML = `
-            <h3>${item.pergunta || ""}</h3>
-            <b>Resposta:</b> ${item.resposta || ""}<br>
-            <b>Pílula:</b> ${item.pilula || ""}<br>
-            <b>Comparação:</b> ${item.comparacao || ""}
-            <div class="info">
-              Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
-              Data Fonte: ${formatarData(item.dataFonte)}
-            </div>
-            <div class="info">
-              Atualizado em: ${formatarData(item.dataAtualizacao)}
-            </div>
-            <button class="btn" onclick="editar(${index})">Editar</button>
-          `;
-        } else {
-          const textoBotao = item.salvando ? "Salvando..." : "Salvar";
-          const disabled = item.salvando ? "disabled" : "";
+  const inicio = paginaAtual * POR_PAGINA;
+  const pagina = filtrados.slice(inicio, inicio + POR_PAGINA);
 
-          card.innerHTML = `
-            <b>Pergunta:</b>
-            <input type="text" value="${item.pergunta || ""}" id="p${index}">
-            <b>Resposta:</b>
-            <textarea id="r${index}">${item.resposta || ""}</textarea>
-            <b>Pílula:</b>
-            <textarea id="pi${index}">${item.pilula || ""}</textarea>
-            <b>Comparação:</b>
-            <textarea id="c${index}">${item.comparacao || ""}</textarea>
-            <b>Fonte (URL):</b>
-            <input type="text" value="${item.fonte || ""}" id="f${index}">
-            <button class="btn salvar" onclick="salvar(${index})" ${disabled}>${textoBotao}</button>
-            <button class="btn" onclick="excluir(${index})" ${disabled} style="background:#dc3545; margin-left:8px;">Excluir</button>
-          `;
-        }
+  pagina.forEach((item, index) => {
+    const indexReal = dados.indexOf(item);
+    const card = document.createElement("div");
+    card.className = "card";
 
-        fragment.appendChild(card);
-      });
+    if (!item.editando) {
+      const url = item.fonte || "";
+      const href = url.startsWith("http") ? url : "https://" + url;
 
-    lista.appendChild(fragment);
+      card.innerHTML = `
+        <h3>${item.pergunta || ""}</h3>
+        <b>Resposta:</b> ${item.resposta || ""}<br>
+        <b>Pílula:</b> ${item.pilula || ""}<br>
+        <b>Comparação:</b> ${item.comparacao || ""}
+        <div class="info">
+          Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
+          Data Fonte: ${formatarData(item.dataFonte)}
+        </div>
+        <div class="info">
+          Atualizado em: ${formatarData(item.dataAtualizacao)}
+        </div>
+        <button class="btn" onclick="editar(${indexReal})">Editar</button>
+      `;
+    } else {
+      const textoBotao = item.salvando ? "Salvando..." : "Salvar";
+      const disabled = item.salvando ? "disabled" : "";
+
+      card.innerHTML = `
+        <b>Pergunta:</b>
+        <input type="text" value="${item.pergunta || ""}" id="p${indexReal}">
+        <b>Resposta:</b>
+        <textarea id="r${indexReal}">${item.resposta || ""}</textarea>
+        <b>Pílula:</b>
+        <textarea id="pi${indexReal}">${item.pilula || ""}</textarea>
+        <b>Comparação:</b>
+        <textarea id="c${indexReal}">${item.comparacao || ""}</textarea>
+        <b>Fonte (URL):</b>
+        <input type="text" value="${item.fonte || ""}" id="f${indexReal}">
+        <button class="btn salvar" onclick="salvar(${indexReal})" ${disabled}>${textoBotao}</button>
+        <button class="btn" onclick="excluir(${indexReal})" ${disabled} style="background:#dc3545; margin-left:8px;">Excluir</button>
+      `;
+    }
+
+    fragment.appendChild(card);
+  });
+
+  lista.appendChild(fragment);
+
+  // Paginação
+  if (totalPaginas > 1) {
+    const nav = document.createElement("div");
+    nav.className = "paginacao";
+
+    const btnAnterior = document.createElement("button");
+    btnAnterior.textContent = "← Anterior";
+    btnAnterior.disabled = paginaAtual === 0;
+    btnAnterior.onclick = () => { paginaAtual--; render(); window.scrollTo(0, 0); };
+    nav.appendChild(btnAnterior);
+
+    for (let i = 0; i < totalPaginas; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i + 1;
+      if (i === paginaAtual) btn.classList.add("ativa");
+      btn.onclick = ((p) => () => { paginaAtual = p; render(); window.scrollTo(0, 0); })(i);
+      nav.appendChild(btn);
+    }
+
+    const btnProxima = document.createElement("button");
+    btnProxima.textContent = "Próxima →";
+    btnProxima.disabled = paginaAtual === totalPaginas - 1;
+    btnProxima.onclick = () => { paginaAtual++; render(); window.scrollTo(0, 0); };
+    nav.appendChild(btnProxima);
+
+    lista.appendChild(nav);
   }
-
+}
   function editar(index) {
     dados[index].editando = true;
     render();
@@ -354,9 +419,10 @@ box-sizing:border-box;
   document.getElementById("searchInput").addEventListener("input", (event) => {
     clearTimeout(debounceBusca);
     debounceBusca = setTimeout(() => {
-      filtroAtual = normalizarTexto(event.target.value);
-      render();
-    }, 120);
+  filtroAtual = normalizarTexto(event.target.value);
+  paginaAtual = 0;
+  render();
+}, 120);
   });
 
   carregar();
