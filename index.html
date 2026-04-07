@@ -213,12 +213,13 @@ box-sizing:border-box;
 
     dados
       .filter(item => {
-        const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
-          .map(normalizarTexto)
-          .join(" ");
+  const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
+    .map(normalizarTexto)
+    .join(" ");
 
-        return textoBusca.includes(filtroAtual);
-      })
+  const tokens = filtroAtual.trim().split(/\s+/).filter(Boolean);
+  return tokens.every(token => textoBusca.includes(token));
+})
       .forEach((item, index) => {
         const card = document.createElement("div");
         card.className = "card";
