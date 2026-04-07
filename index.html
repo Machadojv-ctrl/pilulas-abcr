@@ -121,7 +121,6 @@ box-sizing:border-box;
   function normalizarTexto(valor) {
   return String(valor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
-  }
 
   function hojeBR() {
     return new Date().toLocaleDateString("pt-BR");
