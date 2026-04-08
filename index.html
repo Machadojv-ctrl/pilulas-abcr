@@ -122,6 +122,50 @@ box-sizing:border-box;
   cursor: default;
 }
 
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.aberto {
+  display: flex;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 340px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-box h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.modal-box input {
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-box .erro {
+  color: #dc3545;
+  font-size: 13px;
+  display: none;
+}
+
 </style>
 
 </head>
@@ -134,24 +178,75 @@ box-sizing:border-box;
 
 <div class="search-box">
   <input type="text" id="searchInput" placeholder="🔍 Buscar em pergunta, resposta, pílula...">
-  <button class="btn" onclick="novo()">Novo</button>
+  <button class="btn" id="btnNovo" onclick="novo()" hidden>Novo</button>
   <button class="btn" onclick="carregar(true)">Atualizar</button>
+  <button class="btn" id="btnLogin" onclick="toggleLogin()">🔐 Login</button>
+  <button class="btn" id="btnLogout" onclick="logout()" hidden style="background:#dc3545;">Sair</button>
   <button class="btn" id="installBtn" hidden>Instalar app</button>
 </div>
 
 <div class="container" id="lista"></div>
 
+<div class="modal-overlay" id="modalLogin">
+  <div class="modal-box">
+    <h2>🔐 Acesso restrito</h2>
+    <input type="password" id="inputSenha" placeholder="Digite a senha" onkeydown="if(event.key==='Enter') confirmarLogin()">
+    <button class="btn salvar" onclick="confirmarLogin()">Entrar</button>
+    <button class="btn" onclick="fecharModal()" style="background:#6c757d;">Cancelar</button>
+    <span class="erro" id="erroSenha">Senha incorreta.</span>
+  </div>
+</div>
+
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbxGq9gygGM04nMfuxXaFc26IB7cVmLp_zKYbr5I80BrgsBw92S5fHBvxh93ha65hj-XdQ/exec";
+
+  const SENHA_ADMIN = "admABCR1";
+  let logado = sessionStorage.getItem("logado") === "true";
 
   let dados = [];
   let filtroAtual = "";
   let paginaAtual = 0;
-const POR_PAGINA = 10;
+  const POR_PAGINA = 10;
+
+  function atualizarUI() {
+    document.getElementById("btnNovo").hidden = !logado;
+    document.getElementById("btnLogin").hidden = logado;
+    document.getElementById("btnLogout").hidden = !logado;
+    render();
+  }
+
+  function toggleLogin() {
+    document.getElementById("modalLogin").classList.add("aberto");
+    setTimeout(() => document.getElementById("inputSenha").focus(), 100);
+  }
+
+  function fecharModal() {
+    document.getElementById("modalLogin").classList.remove("aberto");
+    document.getElementById("inputSenha").value = "";
+    document.getElementById("erroSenha").style.display = "none";
+  }
+
+  function confirmarLogin() {
+    const senha = document.getElementById("inputSenha").value;
+    if (senha === SENHA_ADMIN) {
+      logado = true;
+      sessionStorage.setItem("logado", "true");
+      fecharModal();
+      atualizarUI();
+    } else {
+      document.getElementById("erroSenha").style.display = "block";
+    }
+  }
+
+  function logout() {
+    logado = false;
+    sessionStorage.removeItem("logado");
+    atualizarUI();
+  }
 
   function normalizarTexto(valor) {
-  return String(valor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
+    return String(valor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
 
   function hojeBR() {
     return new Date().toLocaleDateString("pt-BR");
@@ -159,25 +254,20 @@ const POR_PAGINA = 10;
 
   function formatarData(valor) {
     if (!valor) return "";
-
     const data = new Date(valor);
-
     if (isNaN(data)) return valor;
-
     return data.toLocaleDateString("pt-BR");
   }
 
   async function apiGet() {
     const resp = await fetch(API_URL);
     const text = await resp.text();
-
     let json;
     try {
       json = JSON.parse(text);
     } catch {
       throw new Error("Resposta inválida do servidor: " + text);
     }
-
     if (!json.ok) throw new Error(json.error || "Erro ao carregar dados");
     return json.data || [];
   }
@@ -188,7 +278,6 @@ const POR_PAGINA = 10;
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ action: "upsert", item })
     });
-
     const text = await resp.text();
     let json;
     try {
@@ -196,7 +285,6 @@ const POR_PAGINA = 10;
     } catch {
       throw new Error("Resposta inválida do servidor: " + text);
     }
-
     if (!json.ok) throw new Error(json.error || "Erro ao salvar dados");
     return json.data;
   }
@@ -207,7 +295,6 @@ const POR_PAGINA = 10;
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ action: "delete", id })
     });
-
     const text = await resp.text();
     let json;
     try {
@@ -215,7 +302,6 @@ const POR_PAGINA = 10;
     } catch {
       throw new Error("Resposta inválida do servidor: " + text);
     }
-
     if (!json.ok) throw new Error(json.error || "Erro ao excluir dados");
     return json.data;
   }
@@ -225,7 +311,6 @@ const POR_PAGINA = 10;
       const rows = await apiGet();
       dados = (rows || []).map(r => ({ ...r, editando: false, salvando: false }));
       render();
-
       if (forcarMensagem) {
         console.log("Dados atualizados com sucesso.");
       }
@@ -235,103 +320,103 @@ const POR_PAGINA = 10;
     }
   }
 
-function render() {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
+  function render() {
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
 
-  const fragment = document.createDocumentFragment();
+    const fragment = document.createDocumentFragment();
 
-  const filtrados = dados.filter(item => {
-    const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
-      .map(normalizarTexto)
-      .join(" ");
+    const filtrados = dados.filter(item => {
+      const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
+        .map(normalizarTexto)
+        .join(" ");
+      const tokens = filtroAtual.trim().split(/\s+/).filter(Boolean);
+      return tokens.every(token => textoBusca.includes(token));
+    });
 
-    const tokens = filtroAtual.trim().split(/\s+/).filter(Boolean);
-    return tokens.every(token => textoBusca.includes(token));
-  });
+    const totalPaginas = Math.ceil(filtrados.length / POR_PAGINA);
+    if (paginaAtual >= totalPaginas) paginaAtual = Math.max(0, totalPaginas - 1);
 
-  const totalPaginas = Math.ceil(filtrados.length / POR_PAGINA);
-  if (paginaAtual >= totalPaginas) paginaAtual = Math.max(0, totalPaginas - 1);
+    const inicio = paginaAtual * POR_PAGINA;
+    const pagina = filtrados.slice(inicio, inicio + POR_PAGINA);
 
-  const inicio = paginaAtual * POR_PAGINA;
-  const pagina = filtrados.slice(inicio, inicio + POR_PAGINA);
+    pagina.forEach((item, index) => {
+      const indexReal = dados.indexOf(item);
+      const card = document.createElement("div");
+      card.className = "card";
 
-  pagina.forEach((item, index) => {
-    const indexReal = dados.indexOf(item);
-    const card = document.createElement("div");
-    card.className = "card";
+      if (!item.editando) {
+        const url = item.fonte || "";
+        const href = url.startsWith("http") ? url : "https://" + url;
 
-    if (!item.editando) {
-      const url = item.fonte || "";
-      const href = url.startsWith("http") ? url : "https://" + url;
+        card.innerHTML = `
+          <h3>${item.pergunta || ""}</h3>
+          <b>Resposta:</b> ${item.resposta || ""}<br>
+          <b>Pílula:</b> ${item.pilula || ""}<br>
+          <b>Comparação:</b> ${item.comparacao || ""}
+          <div class="info">
+            Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
+            Data Fonte: ${formatarData(item.dataFonte)}
+          </div>
+          <div class="info">
+            Atualizado em: ${formatarData(item.dataAtualizacao)}
+          </div>
+          ${logado ? `<button class="btn" onclick="editar(${indexReal})">Editar</button>` : ""}
+        `;
+      } else {
+        const textoBotao = item.salvando ? "Salvando..." : "Salvar";
+        const disabled = item.salvando ? "disabled" : "";
 
-      card.innerHTML = `
-        <h3>${item.pergunta || ""}</h3>
-        <b>Resposta:</b> ${item.resposta || ""}<br>
-        <b>Pílula:</b> ${item.pilula || ""}<br>
-        <b>Comparação:</b> ${item.comparacao || ""}
-        <div class="info">
-          Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
-          Data Fonte: ${formatarData(item.dataFonte)}
-        </div>
-        <div class="info">
-          Atualizado em: ${formatarData(item.dataAtualizacao)}
-        </div>
-        <button class="btn" onclick="editar(${indexReal})">Editar</button>
-      `;
-    } else {
-      const textoBotao = item.salvando ? "Salvando..." : "Salvar";
-      const disabled = item.salvando ? "disabled" : "";
+        card.innerHTML = `
+          <b>Pergunta:</b>
+          <input type="text" value="${item.pergunta || ""}" id="p${indexReal}">
+          <b>Resposta:</b>
+          <textarea id="r${indexReal}">${item.resposta || ""}</textarea>
+          <b>Pílula:</b>
+          <textarea id="pi${indexReal}">${item.pilula || ""}</textarea>
+          <b>Comparação:</b>
+          <textarea id="c${indexReal}">${item.comparacao || ""}</textarea>
+          <b>Fonte (URL):</b>
+          <input type="text" value="${item.fonte || ""}" id="f${indexReal}">
+          <button class="btn salvar" onclick="salvar(${indexReal})" ${disabled}>${textoBotao}</button>
+          <button class="btn" onclick="excluir(${indexReal})" ${disabled} style="background:#dc3545; margin-left:8px;">Excluir</button>
+        `;
+      }
 
-      card.innerHTML = `
-        <b>Pergunta:</b>
-        <input type="text" value="${item.pergunta || ""}" id="p${indexReal}">
-        <b>Resposta:</b>
-        <textarea id="r${indexReal}">${item.resposta || ""}</textarea>
-        <b>Pílula:</b>
-        <textarea id="pi${indexReal}">${item.pilula || ""}</textarea>
-        <b>Comparação:</b>
-        <textarea id="c${indexReal}">${item.comparacao || ""}</textarea>
-        <b>Fonte (URL):</b>
-        <input type="text" value="${item.fonte || ""}" id="f${indexReal}">
-        <button class="btn salvar" onclick="salvar(${indexReal})" ${disabled}>${textoBotao}</button>
-        <button class="btn" onclick="excluir(${indexReal})" ${disabled} style="background:#dc3545; margin-left:8px;">Excluir</button>
-      `;
+      fragment.appendChild(card);
+    });
+
+    lista.appendChild(fragment);
+
+    // Paginação
+    if (totalPaginas > 1) {
+      const nav = document.createElement("div");
+      nav.className = "paginacao";
+
+      const btnAnterior = document.createElement("button");
+      btnAnterior.textContent = "← Anterior";
+      btnAnterior.disabled = paginaAtual === 0;
+      btnAnterior.onclick = () => { paginaAtual--; render(); window.scrollTo(0, 0); };
+      nav.appendChild(btnAnterior);
+
+      for (let i = 0; i < totalPaginas; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i + 1;
+        if (i === paginaAtual) btn.classList.add("ativa");
+        btn.onclick = ((p) => () => { paginaAtual = p; render(); window.scrollTo(0, 0); })(i);
+        nav.appendChild(btn);
+      }
+
+      const btnProxima = document.createElement("button");
+      btnProxima.textContent = "Próxima →";
+      btnProxima.disabled = paginaAtual === totalPaginas - 1;
+      btnProxima.onclick = () => { paginaAtual++; render(); window.scrollTo(0, 0); };
+      nav.appendChild(btnProxima);
+
+      lista.appendChild(nav);
     }
-
-    fragment.appendChild(card);
-  });
-
-  lista.appendChild(fragment);
-
-  // Paginação
-  if (totalPaginas > 1) {
-    const nav = document.createElement("div");
-    nav.className = "paginacao";
-
-    const btnAnterior = document.createElement("button");
-    btnAnterior.textContent = "← Anterior";
-    btnAnterior.disabled = paginaAtual === 0;
-    btnAnterior.onclick = () => { paginaAtual--; render(); window.scrollTo(0, 0); };
-    nav.appendChild(btnAnterior);
-
-    for (let i = 0; i < totalPaginas; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i + 1;
-      if (i === paginaAtual) btn.classList.add("ativa");
-      btn.onclick = ((p) => () => { paginaAtual = p; render(); window.scrollTo(0, 0); })(i);
-      nav.appendChild(btn);
-    }
-
-    const btnProxima = document.createElement("button");
-    btnProxima.textContent = "Próxima →";
-    btnProxima.disabled = paginaAtual === totalPaginas - 1;
-    btnProxima.onclick = () => { paginaAtual++; render(); window.scrollTo(0, 0); };
-    nav.appendChild(btnProxima);
-
-    lista.appendChild(nav);
   }
-}
+
   function editar(index) {
     dados[index].editando = true;
     render();
@@ -419,13 +504,14 @@ function render() {
   document.getElementById("searchInput").addEventListener("input", (event) => {
     clearTimeout(debounceBusca);
     debounceBusca = setTimeout(() => {
-  filtroAtual = normalizarTexto(event.target.value);
-  paginaAtual = 0;
-  render();
-}, 120);
+      filtroAtual = normalizarTexto(event.target.value);
+      paginaAtual = 0;
+      render();
+    }, 120);
   });
 
   carregar();
+  atualizarUI();
 </script>
 
 <script>
@@ -467,3 +553,4 @@ function render() {
 
 </body>
 </html>
+
