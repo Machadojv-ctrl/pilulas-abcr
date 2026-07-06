@@ -1,556 +1,820 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#007bff">
-
+<meta name="theme-color" content="#0d6e8c">
 <link rel="manifest" href="manifest.webmanifest">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Pílulas">
-
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-
-<title>Pílulas Executivas</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Pílulas Executivas — ABCR</title>
 <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body{
-font-family:Arial,sans-serif;
-background:#f2f4f8;
-margin:0;
-padding:20px;
+:root {
+  --teal:        #0d6e8c;
+  --teal-dark:   #0a5570;
+  --teal-bg:     #eef5f8;
+  --verde:       #7fc241;
+  --verde-bg:    #f2f9ea;
+  --cinza-esc:   #1a2634;
+  --cinza-med:   #4b5563;
+  --cinza-cla:   #9ca3af;
+  --borda:       #e2eaed;
+  --branco:      #ffffff;
+  --vermelho:    #dc2626;
+  --fundo:       #f0f5f8;
+  --sombra:      0 1px 3px rgba(13,110,140,0.06), 0 4px 14px rgba(13,110,140,0.05);
+  --radius:      10px;
+  --f-titulo:    'Barlow Condensed', sans-serif;
+  --f-corpo:     'Barlow', sans-serif;
 }
 
-h1{
-text-align:center;
+body {
+  font-family: var(--f-corpo);
+  background: var(--fundo);
+  color: var(--cinza-esc);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-.search-box{
-width:100%;
-max-width:600px;
-margin:20px auto;
-display:flex;
-gap:8px;
+/* ── HEADER ──────────────────────────────── */
+.header {
+  background: var(--teal);
+  padding: 13px 20px 11px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
 }
 
-.search-box input{
-flex:1;
-padding:12px;
-font-size:16px;
+.header-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 900px;
+  margin: 0 auto 10px;
 }
 
-.container{
-max-width:900px;
-margin:auto;
+.header-marca {
+  display: flex;
+  align-items: center;
+  gap: 11px;
 }
 
-.card{
-background:#fff;
-padding:15px;
-border-radius:8px;
-margin-bottom:15px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+.header-logo {
+  height: 36px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.92;
 }
 
-.card h3{
-margin:0 0 10px 0;
+.header-titulo {
+  font-family: var(--f-titulo);
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
-.info{
-font-size:14px;
-color:#555;
-margin-top:6px;
+.header-titulo span {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.6;
+  letter-spacing: 1.8px;
+  margin-top: 2px;
+  text-transform: uppercase;
 }
 
-.btn{
-margin-top:10px;
-padding:6px 12px;
-border:none;
-background:#007bff;
-color:#fff;
-border-radius:4px;
-cursor:pointer;
-font-size:14px;
+.header-acoes {
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
 
-.btn.salvar{
-background:#28a745;
+.header-busca {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.btn:disabled{
-opacity:0.6;
-cursor:wait;
+.header-busca input {
+  width: 100%;
+  padding: 9px 14px;
+  font-size: 14px;
+  font-family: var(--f-corpo);
+  border: none;
+  border-radius: 7px;
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  outline: none;
 }
 
-textarea,input[type="text"]{
-width:100%;
-padding:8px;
-margin-top:5px;
-box-sizing:border-box;
+.header-busca input::placeholder { color: rgba(255,255,255,0.55); }
+
+/* ── BOTÕES ──────────────────────────────── */
+.btn {
+  padding: 7px 13px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: var(--f-titulo);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active   { opacity: 0.82; transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; cursor: wait; }
+
+.btn-ghost  { background: rgba(255,255,255,0.17); color: #fff; }
+.btn-teal   { background: var(--teal); color: #fff; }
+.btn-verde  { background: var(--verde); color: #fff; }
+.btn-salvar { background: #16a34a; color: #fff; }
+.btn-cinza  { background: #6b7280; color: #fff; }
+.btn-perigo { background: var(--vermelho); color: #fff; }
+
+/* ── CONTAINER ───────────────────────────── */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 18px 16px 48px;
 }
 
+/* ── ESTADO ──────────────────────────────── */
+.estado       { text-align: center; padding: 60px 20px; }
+.estado-icone { font-size: 40px; margin-bottom: 10px; }
+.estado-texto { font-size: 14px; color: var(--cinza-med); }
+
+.contador {
+  font-family: var(--f-titulo);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--cinza-cla);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* ── CARD ────────────────────────────────── */
+/* Assinatura: borda esquerda verde-lima = marcação de pista */
+.card {
+  background: var(--branco);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  box-shadow: var(--sombra);
+  border-left: 4px solid var(--verde);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.35s ease, transform 0.35s ease, border-left-color 0.25s;
+  will-change: opacity, transform;
+}
+.card.visivel               { opacity: 1; transform: translateY(0); }
+.card:hover                 { border-left-color: var(--teal); }
+
+.card-inner { padding: 14px 16px; }
+
+.card-pergunta {
+  font-family: var(--f-titulo);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--cinza-esc);
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+
+/* Campo genérico */
+.card-campo { margin-bottom: 7px; }
+
+.card-campo-label {
+  font-family: var(--f-titulo);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cinza-cla);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.card-campo-valor {
+  font-size: 13.5px;
+  color: #374151;
+  line-height: 1.55;
+}
+
+/* Pílula destacada */
+.card-pilula {
+  background: var(--teal-bg);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 7px 7px 0;
+  padding: 8px 12px;
+  margin: 10px 0;
+}
+
+.card-pilula-label {
+  font-family: var(--f-titulo);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--teal);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.card-pilula-texto {
+  font-size: 13.5px;
+  color: var(--cinza-esc);
+  font-style: italic;
+  line-height: 1.55;
+}
+
+/* Rodapé info */
+.card-info {
+  font-size: 11.5px;
+  color: var(--cinza-cla);
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--borda);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+}
+
+.card-info a { color: var(--teal); text-decoration: none; }
+.card-info a:hover { text-decoration: underline; }
+
+.card-acoes { margin-top: 10px; }
+
+/* ── CARD EDITANDO ───────────────────────── */
+.card-edit { padding: 14px 16px; }
+
+.edit-campo { margin-bottom: 11px; }
+
+.edit-campo label {
+  font-family: var(--f-titulo);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--cinza-med);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.edit-campo input,
+.edit-campo textarea {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: var(--f-corpo);
+  border: 1.5px solid var(--borda);
+  border-radius: 7px;
+  outline: none;
+  color: var(--cinza-esc);
+  background: var(--branco);
+  transition: border-color 0.15s;
+}
+
+.edit-campo input:focus,
+.edit-campo textarea:focus { border-color: var(--teal); }
+
+.edit-campo textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+.edit-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+/* ── PAGINAÇÃO ───────────────────────────── */
 .paginacao {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 6px;
-  margin: 20px 0;
+  gap: 5px;
+  margin: 16px 0 8px;
   flex-wrap: wrap;
 }
 
 .paginacao button {
-  padding: 6px 12px;
-  border: 1px solid #007bff;
-  background: #fff;
-  color: #007bff;
-  border-radius: 4px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--teal);
+  background: var(--branco);
+  color: var(--teal);
+  border-radius: 7px;
   cursor: pointer;
-  font-size: 14px;
+  font-family: var(--f-titulo);
+  font-size: 13px;
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
 }
+.paginacao button.ativa { background: var(--teal); color: #fff; }
+.paginacao button:disabled { opacity: 0.35; cursor: default; }
 
-.paginacao button.ativa {
-  background: #007bff;
-  color: #fff;
-}
-
-.paginacao button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
+/* ── MODAL ───────────────────────────────── */
 .modal-overlay {
   display: none;
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
-  z-index: 1000;
+  z-index: 400;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
 }
-
-.modal-overlay.aberto {
-  display: flex;
-}
+.modal-overlay.aberto { display: flex; }
 
 .modal-box {
-  background: #fff;
-  padding: 30px;
-  border-radius: 8px;
+  background: var(--branco);
+  border-radius: 16px 16px 0 0;
+  padding: 22px 20px 32px;
   width: 100%;
-  max-width: 340px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.modal-box h2 {
-  margin: 0;
+.modal-titulo {
+  font-family: var(--f-titulo);
   font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--cinza-esc);
 }
 
-.modal-box input {
-  padding: 10px;
+.modal-box input[type="password"] {
+  padding: 11px 13px;
   font-size: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  font-family: var(--f-corpo);
+  border: 1.5px solid var(--borda);
+  border-radius: 8px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
 }
+.modal-box input[type="password"]:focus { border-color: var(--teal); }
 
-.modal-box .erro {
-  color: #dc3545;
+.modal-btns { display: flex; gap: 8px; }
+.modal-btns .btn { flex: 1; padding: 12px; font-size: 14px; }
+
+.erro-msg {
   font-size: 13px;
+  color: var(--vermelho);
+  font-weight: 600;
   display: none;
 }
-
 </style>
-
 </head>
 <body>
 
-<div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px;">
-  <img src="abcr.png" style="height: 48px; object-fit: contain;">
-  <h1 style="margin: 0;">Pílulas</h1>
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-topo">
+    <div class="header-marca">
+      <img src="abcr.png" class="header-logo" alt="ABCR">
+      <div class="header-titulo">
+        Pílulas
+        <span>Executivas · ABCR</span>
+      </div>
+    </div>
+    <div class="header-acoes">
+      <button class="btn btn-ghost" id="btnNovo" onclick="novo()" hidden>+ Novo</button>
+      <button class="btn btn-ghost" title="Atualizar dados" onclick="carregar(true)">↻</button>
+      <button class="btn btn-ghost" id="btnLogin" onclick="toggleLogin()">🔐</button>
+      <button class="btn btn-perigo" id="btnLogout" onclick="logout()" hidden>Sair</button>
+      <button class="btn btn-ghost" id="installBtn" hidden>⬇</button>
+    </div>
+  </div>
+  <div class="header-busca">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar em pergunta, resposta, pílula...">
+  </div>
 </div>
 
-<div class="search-box">
-  <input type="text" id="searchInput" placeholder="🔍 Buscar em pergunta, resposta, pílula...">
-  <button class="btn" id="btnNovo" onclick="novo()" hidden>Novo</button>
-  <button class="btn" onclick="carregar(true)">Atualizar</button>
-  <button class="btn" id="btnLogin" onclick="toggleLogin()">🔐 Login</button>
-  <button class="btn" id="btnLogout" onclick="logout()" hidden style="background:#dc3545;">Sair</button>
-  <button class="btn" id="installBtn" hidden>Instalar app</button>
+<!-- ── CONTEÚDO ── -->
+<div class="container">
+  <div id="lista">
+    <div class="estado">
+      <div class="estado-icone">⏳</div>
+      <div class="estado-texto">Carregando pílulas...</div>
+    </div>
+  </div>
 </div>
 
-<div class="container" id="lista"></div>
-
+<!-- ── MODAL LOGIN ── -->
 <div class="modal-overlay" id="modalLogin">
   <div class="modal-box">
-    <h2>🔐 Acesso restrito</h2>
-    <input type="password" id="inputSenha" placeholder="Digite a senha" onkeydown="if(event.key==='Enter') confirmarLogin()">
-    <button class="btn salvar" onclick="confirmarLogin()">Entrar</button>
-    <button class="btn" onclick="fecharModal()" style="background:#6c757d;">Cancelar</button>
-    <span class="erro" id="erroSenha">Senha incorreta.</span>
+    <div class="modal-titulo">🔐 Acesso restrito</div>
+    <input type="password" id="inputSenha" placeholder="Digite a senha"
+      onkeydown="if(event.key==='Enter') confirmarLogin()">
+    <span class="erro-msg" id="erroSenha">Senha incorreta.</span>
+    <div class="modal-btns">
+      <button class="btn btn-salvar" onclick="confirmarLogin()">Entrar</button>
+      <button class="btn btn-cinza" onclick="fecharModal()">Cancelar</button>
+    </div>
   </div>
 </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxGq9gygGM04nMfuxXaFc26IB7cVmLp_zKYbr5I80BrgsBw92S5fHBvxh93ha65hj-XdQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxGq9gygGM04nMfuxXaFc26IB7cVmLp_zKYbr5I80BrgsBw92S5fHBvxh93ha65hj-XdQ/exec";
+const SENHA_ADMIN = "admABCR1";
 
-  const SENHA_ADMIN = "admABCR1";
-  let logado = sessionStorage.getItem("logado") === "true";
+let logado    = sessionStorage.getItem("logado") === "true";
+let dados     = [];
+let filtroAtual = "";
+let paginaAtual = 0;
+const POR_PAGINA = 10;
 
-  let dados = [];
-  let filtroAtual = "";
-  let paginaAtual = 0;
-  const POR_PAGINA = 10;
+/* ── UI ── */
+function atualizarUI() {
+  document.getElementById("btnNovo").hidden   = !logado;
+  document.getElementById("btnLogin").hidden  = logado;
+  document.getElementById("btnLogout").hidden = !logado;
+  render();
+}
 
-  function atualizarUI() {
-    document.getElementById("btnNovo").hidden = !logado;
-    document.getElementById("btnLogin").hidden = logado;
-    document.getElementById("btnLogout").hidden = !logado;
-    render();
-  }
+function toggleLogin() {
+  document.getElementById("modalLogin").classList.add("aberto");
+  setTimeout(() => document.getElementById("inputSenha").focus(), 120);
+}
 
-  function toggleLogin() {
-    document.getElementById("modalLogin").classList.add("aberto");
-    setTimeout(() => document.getElementById("inputSenha").focus(), 100);
-  }
+function fecharModal() {
+  document.getElementById("modalLogin").classList.remove("aberto");
+  document.getElementById("inputSenha").value = "";
+  document.getElementById("erroSenha").style.display = "none";
+}
 
-  function fecharModal() {
-    document.getElementById("modalLogin").classList.remove("aberto");
-    document.getElementById("inputSenha").value = "";
-    document.getElementById("erroSenha").style.display = "none";
-  }
-
-  function confirmarLogin() {
-    const senha = document.getElementById("inputSenha").value;
-    if (senha === SENHA_ADMIN) {
-      logado = true;
-      sessionStorage.setItem("logado", "true");
-      fecharModal();
-      atualizarUI();
-    } else {
-      document.getElementById("erroSenha").style.display = "block";
-    }
-  }
-
-  function logout() {
-    logado = false;
-    sessionStorage.removeItem("logado");
+function confirmarLogin() {
+  const senha = document.getElementById("inputSenha").value;
+  if (senha === SENHA_ADMIN) {
+    logado = true;
+    sessionStorage.setItem("logado", "true");
+    fecharModal();
     atualizarUI();
+  } else {
+    document.getElementById("erroSenha").style.display = "block";
   }
+}
 
-  function normalizarTexto(valor) {
-    return String(valor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  }
-
-  function hojeBR() {
-    return new Date().toLocaleDateString("pt-BR");
-  }
-
-  function formatarData(valor) {
-    if (!valor) return "";
-    const data = new Date(valor);
-    if (isNaN(data)) return valor;
-    return data.toLocaleDateString("pt-BR");
-  }
-
-  async function apiGet() {
-    const resp = await fetch(API_URL);
-    const text = await resp.text();
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      throw new Error("Resposta inválida do servidor: " + text);
-    }
-    if (!json.ok) throw new Error(json.error || "Erro ao carregar dados");
-    return json.data || [];
-  }
-
-  async function apiUpsert(item) {
-    const resp = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "upsert", item })
-    });
-    const text = await resp.text();
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      throw new Error("Resposta inválida do servidor: " + text);
-    }
-    if (!json.ok) throw new Error(json.error || "Erro ao salvar dados");
-    return json.data;
-  }
-
-  async function apiDelete(id) {
-    const resp = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "delete", id })
-    });
-    const text = await resp.text();
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      throw new Error("Resposta inválida do servidor: " + text);
-    }
-    if (!json.ok) throw new Error(json.error || "Erro ao excluir dados");
-    return json.data;
-  }
-
-  async function carregar(forcarMensagem = false) {
-    try {
-      const rows = await apiGet();
-      dados = (rows || []).map(r => ({ ...r, editando: false, salvando: false }));
-      render();
-      if (forcarMensagem) {
-        console.log("Dados atualizados com sucesso.");
-      }
-    } catch (err) {
-      alert("Erro ao carregar dados");
-      console.error(err);
-    }
-  }
-
-  function render() {
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
-
-    const fragment = document.createDocumentFragment();
-
-    const filtrados = dados.filter(item => {
-      const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
-        .map(normalizarTexto)
-        .join(" ");
-      const tokens = filtroAtual.trim().split(/\s+/).filter(Boolean);
-      return tokens.every(token => textoBusca.includes(token));
-    });
-
-    const totalPaginas = Math.ceil(filtrados.length / POR_PAGINA);
-    if (paginaAtual >= totalPaginas) paginaAtual = Math.max(0, totalPaginas - 1);
-
-    const inicio = paginaAtual * POR_PAGINA;
-    const pagina = filtrados.slice(inicio, inicio + POR_PAGINA);
-
-    pagina.forEach((item, index) => {
-      const indexReal = dados.indexOf(item);
-      const card = document.createElement("div");
-      card.className = "card";
-
-      if (!item.editando) {
-        const url = item.fonte || "";
-        const href = url.startsWith("http") ? url : "https://" + url;
-
-        card.innerHTML = `
-          <h3>${item.pergunta || ""}</h3>
-          <b>Resposta:</b> ${item.resposta || ""}<br>
-          <b>Pílula:</b> ${item.pilula || ""}<br>
-          <b>Comparação:</b> ${item.comparacao || ""}
-          <div class="info">
-            Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte || ""}</a> |
-            Data Fonte: ${formatarData(item.dataFonte)}
-          </div>
-          <div class="info">
-            Atualizado em: ${formatarData(item.dataAtualizacao)}
-          </div>
-          ${logado ? `<button class="btn" onclick="editar(${indexReal})">Editar</button>` : ""}
-        `;
-      } else {
-        const textoBotao = item.salvando ? "Salvando..." : "Salvar";
-        const disabled = item.salvando ? "disabled" : "";
-
-        card.innerHTML = `
-          <b>Pergunta:</b>
-          <input type="text" value="${item.pergunta || ""}" id="p${indexReal}">
-          <b>Resposta:</b>
-          <textarea id="r${indexReal}">${item.resposta || ""}</textarea>
-          <b>Pílula:</b>
-          <textarea id="pi${indexReal}">${item.pilula || ""}</textarea>
-          <b>Comparação:</b>
-          <textarea id="c${indexReal}">${item.comparacao || ""}</textarea>
-          <b>Fonte (URL):</b>
-          <input type="text" value="${item.fonte || ""}" id="f${indexReal}">
-          <button class="btn salvar" onclick="salvar(${indexReal})" ${disabled}>${textoBotao}</button>
-          <button class="btn" onclick="excluir(${indexReal})" ${disabled} style="background:#dc3545; margin-left:8px;">Excluir</button>
-        `;
-      }
-
-      fragment.appendChild(card);
-    });
-
-    lista.appendChild(fragment);
-
-    // Paginação
-    if (totalPaginas > 1) {
-      const nav = document.createElement("div");
-      nav.className = "paginacao";
-
-      const btnAnterior = document.createElement("button");
-      btnAnterior.textContent = "← Anterior";
-      btnAnterior.disabled = paginaAtual === 0;
-      btnAnterior.onclick = () => { paginaAtual--; render(); window.scrollTo(0, 0); };
-      nav.appendChild(btnAnterior);
-
-      for (let i = 0; i < totalPaginas; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i + 1;
-        if (i === paginaAtual) btn.classList.add("ativa");
-        btn.onclick = ((p) => () => { paginaAtual = p; render(); window.scrollTo(0, 0); })(i);
-        nav.appendChild(btn);
-      }
-
-      const btnProxima = document.createElement("button");
-      btnProxima.textContent = "Próxima →";
-      btnProxima.disabled = paginaAtual === totalPaginas - 1;
-      btnProxima.onclick = () => { paginaAtual++; render(); window.scrollTo(0, 0); };
-      nav.appendChild(btnProxima);
-
-      lista.appendChild(nav);
-    }
-  }
-
-  function editar(index) {
-    dados[index].editando = true;
-    render();
-  }
-
-  async function salvar(index) {
-    const item = dados[index];
-    if (!item || item.salvando) return;
-
-    try {
-      const pergunta = document.getElementById(`p${index}`)?.value || "";
-      const resposta = document.getElementById(`r${index}`)?.value || "";
-      const pilula = document.getElementById(`pi${index}`)?.value || "";
-      const comparacao = document.getElementById(`c${index}`)?.value || "";
-      const fonte = document.getElementById(`f${index}`)?.value || "";
-
-      item.pergunta = pergunta;
-      item.resposta = resposta;
-      item.pilula = pilula;
-      item.comparacao = comparacao;
-      item.fonte = fonte;
-
-      item.salvando = true;
-      render();
-
-      if (!item.dataFonte) item.dataFonte = hojeBR();
-      item.dataAtualizacao = hojeBR();
-
-      const result = await apiUpsert(item);
-      if (result && result.id) item.id = result.id;
-
-      item.salvando = false;
-      item.editando = false;
-      render();
-    } catch (err) {
-      item.salvando = false;
-      render();
-      alert("Erro ao salvar");
-      console.error(err);
-    }
-  }
-
-  async function excluir(index) {
-    const item = dados[index];
-    if (!item || item.salvando) return;
-
-    const confirmado = confirm(`Deseja excluir a entrada "${item.pergunta || "sem título"}"?`);
-    if (!confirmado) return;
-
-    try {
-      item.salvando = true;
-      render();
-
-      if (item.id) {
-        await apiDelete(item.id);
-      }
-
-      dados.splice(index, 1);
-      render();
-    } catch (err) {
-      item.salvando = false;
-      render();
-      alert("Erro ao excluir");
-      console.error(err);
-    }
-  }
-
-  function novo() {
-    dados.unshift({
-      id: "",
-      pergunta: "",
-      resposta: "",
-      pilula: "",
-      comparacao: "",
-      fonte: "https://www.google.com",
-      dataFonte: hojeBR(),
-      dataAtualizacao: hojeBR(),
-      editando: true,
-      salvando: false
-    });
-    render();
-  }
-
-  let debounceBusca;
-  document.getElementById("searchInput").addEventListener("input", (event) => {
-    clearTimeout(debounceBusca);
-    debounceBusca = setTimeout(() => {
-      filtroAtual = normalizarTexto(event.target.value);
-      paginaAtual = 0;
-      render();
-    }, 120);
-  });
-
-  carregar();
+function logout() {
+  logado = false;
+  sessionStorage.removeItem("logado");
   atualizarUI();
-</script>
+}
 
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", async () => {
-      try {
-        await navigator.serviceWorker.register("./sw.js");
-        console.log("Service Worker registrado com sucesso");
-      } catch (error) {
-        console.error("Erro ao registrar Service Worker:", error);
-      }
-    });
+/* ── UTILS ── */
+function normalizarTexto(valor) {
+  return String(valor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function hojeBR() {
+  return new Date().toLocaleDateString("pt-BR");
+}
+
+function formatarData(valor) {
+  if (!valor) return "";
+  const data = new Date(valor);
+  if (isNaN(data)) return valor;
+  return data.toLocaleDateString("pt-BR");
+}
+
+/* ── API ── */
+async function apiGet() {
+  const resp = await fetch(API_URL);
+  const text = await resp.text();
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error("Resposta inválida do servidor: " + text); }
+  if (!json.ok) throw new Error(json.error || "Erro ao carregar dados");
+  return json.data || [];
+}
+
+async function apiUpsert(item) {
+  const resp = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "upsert", item })
+  });
+  const text = await resp.text();
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error("Resposta inválida do servidor: " + text); }
+  if (!json.ok) throw new Error(json.error || "Erro ao salvar dados");
+  return json.data;
+}
+
+async function apiDelete(id) {
+  const resp = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ action: "delete", id })
+  });
+  const text = await resp.text();
+  let json;
+  try { json = JSON.parse(text); }
+  catch { throw new Error("Resposta inválida do servidor: " + text); }
+  if (!json.ok) throw new Error(json.error || "Erro ao excluir dados");
+  return json.data;
+}
+
+/* ── CARREGAR ── */
+async function carregar(forcarMensagem = false) {
+  try {
+    const rows = await apiGet();
+    dados = (rows || []).map(r => ({ ...r, editando: false, salvando: false }));
+    render();
+    if (forcarMensagem) console.log("Dados atualizados.");
+  } catch (err) {
+    document.getElementById("lista").innerHTML =
+      '<div class="estado"><div class="estado-icone">⚠️</div><div class="estado-texto">Erro ao carregar dados.</div></div>';
+    console.error(err);
   }
+}
+
+/* ── RENDER ── */
+const cardObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add("visivel");
+      cardObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.04 });
+
+function render() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  const filtrados = dados.filter(item => {
+    const textoBusca = [item.pergunta, item.resposta, item.pilula, item.comparacao, item.fonte]
+      .map(normalizarTexto).join(" ");
+    const tokens = filtroAtual.trim().split(/\s+/).filter(Boolean);
+    return tokens.every(token => textoBusca.includes(token));
+  });
+
+  if (filtrados.length === 0 && dados.length > 0) {
+    lista.innerHTML = '<div class="estado"><div class="estado-icone">🔍</div><div class="estado-texto">Nenhum resultado encontrado.</div></div>';
+    return;
+  }
+
+  const totalPaginas = Math.ceil(filtrados.length / POR_PAGINA);
+  if (paginaAtual >= totalPaginas) paginaAtual = Math.max(0, totalPaginas - 1);
+
+  // Contador
+  if (filtrados.length > 0) {
+    const cnt = document.createElement("div");
+    cnt.className = "contador";
+    cnt.textContent = `${filtrados.length} pílula${filtrados.length !== 1 ? "s" : ""}`;
+    lista.appendChild(cnt);
+  }
+
+  const inicio  = paginaAtual * POR_PAGINA;
+  const pagina  = filtrados.slice(inicio, inicio + POR_PAGINA);
+
+  pagina.forEach((item, i) => {
+    const indexReal = dados.indexOf(item);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.transitionDelay = `${i * 50}ms`;
+
+    if (!item.editando) {
+      const url  = item.fonte || "";
+      const href = url.startsWith("http") ? url : "https://" + url;
+
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-pergunta">${item.pergunta || ""}</div>
+
+          ${item.resposta ? `
+          <div class="card-campo">
+            <span class="card-campo-label">Resposta</span>
+            <span class="card-campo-valor">${item.resposta}</span>
+          </div>` : ""}
+
+          ${item.pilula ? `
+          <div class="card-pilula">
+            <span class="card-pilula-label">Pílula</span>
+            <div class="card-pilula-texto">${item.pilula}</div>
+          </div>` : ""}
+
+          ${item.comparacao ? `
+          <div class="card-campo">
+            <span class="card-campo-label">Comparação</span>
+            <span class="card-campo-valor">${item.comparacao}</span>
+          </div>` : ""}
+
+          <div class="card-info">
+            ${item.fonte ? `<span>Fonte: <a href="${href}" target="_blank" rel="noopener noreferrer">${item.fonte}</a></span>` : ""}
+            ${item.dataFonte ? `<span>· Data fonte: ${formatarData(item.dataFonte)}</span>` : ""}
+            ${item.dataAtualizacao ? `<span>· Atualizado: ${formatarData(item.dataAtualizacao)}</span>` : ""}
+          </div>
+
+          ${logado ? `
+          <div class="card-acoes">
+            <button class="btn btn-teal" style="font-size:13px;padding:6px 13px;"
+              onclick="editar(${indexReal})">✏️ Editar</button>
+          </div>` : ""}
+        </div>
+      `;
+    } else {
+      const textoBotao = item.salvando ? "Salvando..." : "Salvar";
+      const disabled   = item.salvando ? "disabled" : "";
+
+      card.innerHTML = `
+        <div class="card-edit">
+          <div class="edit-campo">
+            <label>Pergunta</label>
+            <input type="text" id="p${indexReal}" value="${item.pergunta || ""}">
+          </div>
+          <div class="edit-campo">
+            <label>Resposta</label>
+            <textarea id="r${indexReal}">${item.resposta || ""}</textarea>
+          </div>
+          <div class="edit-campo">
+            <label>Pílula</label>
+            <textarea id="pi${indexReal}">${item.pilula || ""}</textarea>
+          </div>
+          <div class="edit-campo">
+            <label>Comparação</label>
+            <textarea id="c${indexReal}">${item.comparacao || ""}</textarea>
+          </div>
+          <div class="edit-campo">
+            <label>Fonte (URL)</label>
+            <input type="text" id="f${indexReal}" value="${item.fonte || ""}">
+          </div>
+          <div class="edit-btns">
+            <button class="btn btn-salvar" onclick="salvar(${indexReal})" ${disabled}>${textoBotao}</button>
+            <button class="btn btn-perigo" onclick="excluir(${indexReal})" ${disabled}>Excluir</button>
+          </div>
+        </div>
+      `;
+    }
+
+    lista.appendChild(card);
+    cardObserver.observe(card);
+  });
+
+  // Paginação
+  if (totalPaginas > 1) {
+    const nav = document.createElement("div");
+    nav.className = "paginacao";
+
+    const btnAnt = document.createElement("button");
+    btnAnt.textContent = "← Anterior";
+    btnAnt.disabled = paginaAtual === 0;
+    btnAnt.onclick = () => { paginaAtual--; render(); window.scrollTo(0, 0); };
+    nav.appendChild(btnAnt);
+
+    for (let i = 0; i < totalPaginas; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i + 1;
+      if (i === paginaAtual) btn.classList.add("ativa");
+      btn.onclick = ((p) => () => { paginaAtual = p; render(); window.scrollTo(0, 0); })(i);
+      nav.appendChild(btn);
+    }
+
+    const btnProx = document.createElement("button");
+    btnProx.textContent = "Próxima →";
+    btnProx.disabled = paginaAtual === totalPaginas - 1;
+    btnProx.onclick = () => { paginaAtual++; render(); window.scrollTo(0, 0); };
+    nav.appendChild(btnProx);
+
+    lista.appendChild(nav);
+  }
+}
+
+/* ── EDIÇÃO ── */
+function editar(index) {
+  dados[index].editando = true;
+  render();
+}
+
+async function salvar(index) {
+  const item = dados[index];
+  if (!item || item.salvando) return;
+
+  try {
+    item.pergunta   = document.getElementById(`p${index}`)?.value  || "";
+    item.resposta   = document.getElementById(`r${index}`)?.value  || "";
+    item.pilula     = document.getElementById(`pi${index}`)?.value || "";
+    item.comparacao = document.getElementById(`c${index}`)?.value  || "";
+    item.fonte      = document.getElementById(`f${index}`)?.value  || "";
+
+    item.salvando = true;
+    render();
+
+    if (!item.dataFonte) item.dataFonte = hojeBR();
+    item.dataAtualizacao = hojeBR();
+
+    const result = await apiUpsert(item);
+    if (result && result.id) item.id = result.id;
+
+    item.salvando = false;
+    item.editando = false;
+    render();
+  } catch (err) {
+    item.salvando = false;
+    render();
+    alert("Erro ao salvar");
+    console.error(err);
+  }
+}
+
+async function excluir(index) {
+  const item = dados[index];
+  if (!item || item.salvando) return;
+
+  const confirmado = confirm(`Deseja excluir "${item.pergunta || "sem título"}"?`);
+  if (!confirmado) return;
+
+  try {
+    item.salvando = true;
+    render();
+    if (item.id) await apiDelete(item.id);
+    dados.splice(index, 1);
+    render();
+  } catch (err) {
+    item.salvando = false;
+    render();
+    alert("Erro ao excluir");
+    console.error(err);
+  }
+}
+
+function novo() {
+  dados.unshift({
+    id: "", pergunta: "", resposta: "", pilula: "", comparacao: "",
+    fonte: "https://www.google.com", dataFonte: hojeBR(),
+    dataAtualizacao: hojeBR(), editando: true, salvando: false
+  });
+  render();
+}
+
+/* ── BUSCA ── */
+let debounceBusca;
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  clearTimeout(debounceBusca);
+  debounceBusca = setTimeout(() => {
+    filtroAtual = normalizarTexto(e.target.value);
+    paginaAtual = 0;
+    render();
+  }, 120);
+});
+
+/* Fechar modal ao clicar no overlay */
+document.getElementById("modalLogin").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("modalLogin")) fecharModal();
+});
+
+/* ── INIT ── */
+carregar();
+atualizarUI();
 </script>
 
+<!-- Service Worker -->
 <script>
-  let deferredPrompt;
-
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    document.getElementById("installBtn").hidden = false;
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", async () => {
+    try {
+      await navigator.serviceWorker.register("./sw.js");
+    } catch (e) {
+      console.error("SW:", e);
+    }
   });
+}
+</script>
 
-  document.getElementById("installBtn").addEventListener("click", async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-
-    deferredPrompt = null;
-    document.getElementById("installBtn").hidden = true;
-  });
-
-  window.addEventListener("appinstalled", () => {
-    document.getElementById("installBtn").hidden = true;
-  });
+<!-- Install PWA -->
+<script>
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("installBtn").hidden = false;
+});
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById("installBtn").hidden = true;
+});
+window.addEventListener("appinstalled", () => {
+  document.getElementById("installBtn").hidden = true;
+});
 </script>
 
 </body>
 </html>
-
